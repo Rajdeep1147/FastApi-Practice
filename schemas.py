@@ -1,23 +1,22 @@
 from pydantic import BaseModel
+from typing import List
 
 class BlogBase(BaseModel):
     name: str
-    description: str
+    description: str    
     body: str
+    class Config:
+        orm_mode = True
+
 
 class BlogCreate(BlogBase):
     pass
 
-class showBlog(BlogBase):
-    name: str
-    description: str    
-    body: str
-
 class Blog(BlogBase):
-    id: int
-    
+    user_id: int
     class Config:
         from_attributes = True
+    
 
 class UserBase(BaseModel):
     name: str
@@ -27,6 +26,15 @@ class UserBase(BaseModel):
 class showUser(BaseModel):
     name: str
     email: str
+    blogs: list[Blog] = []
+    class Config:
+        orm_mode = True
+
+class showBlog(BlogBase):
+    id: int
+    user_id: int
+    class Config:
+        from_attributes = True
 
 class CreateUser(UserBase):
     pass
