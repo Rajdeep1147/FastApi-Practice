@@ -5,53 +5,34 @@ from schemas import showBlog, BlogCreate
 from model import Blog
 from database import get_db    
 from typing import List
+from repository.blog import *
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/blog",
+    tags=["Blogs"],
+)
 
-@router.get('/blogs',response_model=list[showBlog],tags=["blogs"])
+@router.get('/',response_model=list[showBlog])
 def get_blogs(db: Session = Depends(get_db)):
-    blogs = db.query(Blog).all()
-    return blogs
+    return get_all_blogs(db)
 
 
 #get blog by id
-@router.get('/blogs/{id}',response_model=showBlog,status_code=200,tags=["blogs"])
+@router.get('/{id}',response_model=showBlog,status_code=200)
 def get_blog(id: int, db: Session = Depends(get_db)):
-    blog = db.query(Blog).filter(Blog.id == id).first()
-    if not blog:
-        raise HTTPException(status_code=404, detail=f"Blog {id} not found")
-    return blog
+    return get_single_blog(id, db)
 
 #create blog
-@router.post('/create_blog', response_model=showBlog, tags=["blogs"])
+@router.post('/create_blog', response_model=showBlog)
 def create_blog(request: BlogCreate, db: Session = Depends(get_db)):
-    new_blog = Blog(name=request.name, description=request.description, body=request.body, user_id=1)
-    db.add(new_blog)
-    db.commit()
-    db.refresh(new_blog)
-    return new_blog
+   return create_new_blog(request, db)
 
 #update blog
-@router.put('/update_blog/{id}',tags=["blogs"])
+@router.put('/update_blog/{id}')
 def update_blog(id: int, request: BlogCreate, db: Session = Depends(get_db)):
-    blog = db.query(Blog).filter(Blog.id == id).first()
-    if not blog:
-        raise HTTPException(status_code=404, detail=f"Blog {id} not found")
-    
-    blog.name = request.name
-    blog.description = request.description
-    blog.body = request.body
-    
-    db.commit()
-    db.refresh(blog)
-    return blog    
+    return update_existing_blog(id, request, db)
 
 #delete blog
-@router.delete('/delete_blog/{id}',status_code=status.HTTP_204_NO_CONTENT,tags=["blogs"])
+@router.delete('/delete_blog/{id}',status_code=status.HTTP_204_NO_CONTENT,)
 def delete_blog(id:int ,db:Session=Depends(get_db)):
-    delete_blog = db.query(Blog).filter(Blog.id==id)
-    if not delete_blog.first():
-        raise HTTPException(status_code=404,detail=f"Blog {id} not found")
-    delete_blog.delete(synchronize_session=False)
-    db.commit()
-    return Response(status_code=status.HTTP_204_NO_CONTENT)    
+   return delete_blog(id, db) 

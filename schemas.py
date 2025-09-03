@@ -30,6 +30,7 @@ class showUser(BaseModel):
     class Config:
         orm_mode = True
 
+
 class showBlog(BlogBase):
     id: int
     user_id: int
