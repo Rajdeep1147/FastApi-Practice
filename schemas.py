@@ -6,7 +6,7 @@ class BlogBase(BaseModel):
     description: str    
     body: str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BlogCreate(BlogBase):
@@ -28,7 +28,7 @@ class showUser(BaseModel):
     email: str
     blogs: list[Blog] = []
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class showBlog(BlogBase):
@@ -44,3 +44,15 @@ class user(UserBase):
     id: int
     class Config:
         from_attributes = True
+
+class Login(BaseModel):
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None    

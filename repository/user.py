@@ -5,10 +5,6 @@ from model import User
 from database import get_db
 from hashing import Hash
 from sqlalchemy.orm import Session
-from repository.user import *
-from sqlalchemy.orm import Session
-from model import Blog
-from database import get_db
 from typing import List
 
 def createUser(request:CreateUser,db:Session=Depends(get_db)):
@@ -28,3 +24,6 @@ def deleteUser(id:int,db:Session=Depends(get_db)):
     delete_user = db.query(User).filter(User.id==id).first()
     if not delete_user:
         raise HTTPException(status_code = 404, detail=f"User {id} not found")
+    db.delete(delete_user)
+    db.commit()
+    return delete_user
